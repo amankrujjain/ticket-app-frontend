@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import Ticket from './components/Ticket';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import TicketTable from './components/TicektTable';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ticket" element={<Ticket />} />
+            <Route path="/ticket/open" element={<TicketTable/>} />
             <Route path="*" element={<Login />} />
           </Routes>
         </div>

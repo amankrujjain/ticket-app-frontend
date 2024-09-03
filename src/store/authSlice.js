@@ -8,6 +8,8 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await axios.post('http://localhost:5000/api/login', credentials, { withCredentials: true });
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
@@ -38,18 +40,22 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+const initialState = {
+  user: JSON.parse(localStorage.getItem('user')) || null,
+  token: localStorage.getItem('token') || null,
+  loading: false,
+  error: null,
+};
+
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    user: null,
-    token: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     logout: (state) => {
       state.user = null;
       state.token = null;
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
       successToast('Logged out successfully'); // Success toast notification for logout
     },
   },

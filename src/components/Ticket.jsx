@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIssues, fetchReasons, fetchMachines, createTicket } from '../store/ticketSlice';
+import Card from "./Card"
 
 export default function Ticket() {
   const dispatch = useDispatch();
@@ -48,10 +49,7 @@ export default function Ticket() {
     <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-md shadow-md">
       <h1 className="text-2xl font-bold mb-4">Create Ticket</h1>
 
-      <div className="mb-4">
-        <p><strong>Name:</strong> {user.name}</p>
-        <p><strong>Email:</strong> {user.email}</p>
-      </div>
+      <Card user={user}/>
 
       {ticketLoading && <p>Loading ticket data...</p>}
       {error && <p className="text-red-500">{error}</p>}
