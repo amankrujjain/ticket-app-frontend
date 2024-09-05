@@ -7,7 +7,7 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/login', credentials, { withCredentials: true });
+      const response = await axios.post('http://10.127.21.103:5000/api/login', credentials, { withCredentials: true });
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem('token', response.data.token);
       return response.data;
@@ -27,7 +27,7 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/register', userData, { withCredentials: true });
+      const response = await axios.post('http://10.127.21.103:5000/api/register', userData, { withCredentials: true });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
@@ -56,7 +56,7 @@ const authSlice = createSlice({
       state.token = null;
       localStorage.removeItem('user');
       localStorage.removeItem('token');
-      successToast('Logged out successfully'); // Success toast notification for logout
+      successToast('Logged out successfully');
     },
   },
   extraReducers: (builder) => {

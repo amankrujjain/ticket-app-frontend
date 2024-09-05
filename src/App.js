@@ -9,6 +9,7 @@ import Ticket from './components/Ticket';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TicketTable from './components/TicektTable';
+import TicketDetails from './components/TicketDetails';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ticket" element={<Ticket />} />
             <Route path="/ticket/open" element={<TicketTable/>} />
+            <Route path="/ticket/view-ticket-details" element={<TicketDetails/>} />
             <Route path="*" element={<Login />} />
           </Routes>
         </div>

@@ -124,7 +124,7 @@ export const fetchIssues = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/get-all-issues"
+        "http://10.127.21.103:5000/api/get-all-issues"
       );
       if (response.data.success) {
         return response.data.data;
@@ -141,52 +141,92 @@ export const fetchIssues = createAsyncThunk(
 
 export const fetchReasons = createAsyncThunk(
   "ticket/fetchReasons",
-  async (_, { rejectWithValue }) => {
+  async (issueId, { rejectWithValue }) => {
     try {
-      const response = await axios.get("http://localhost:5000/api/get-reasons");
+      const response = await axios.get(`http://10.127.21.103:5000/api/get-reasons-by-issue/${issueId}`);
       if (response.data.success) {
         return response.data.data;
       } else {
-        return rejectWithValue("Failed to fetch");
+        return rejectWithValue("Failed to fetch reasons for the issue");
       }
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch reasons"
+        error.response?.data?.message || "Failed to fetch reasons for the issue"
       );
     }
   }
 );
 
+
 export const fetchMachines = createAsyncThunk(
   "ticket/fetchMachines",
-  async (_, { rejectWithValue }) => {
+  async (centreId, { getState, rejectWithValue }) => {
     try {
+      const { auth } = getState(); // Access token from the Redux state
+      const token = auth?.user?.token; // Extract token from user data
+
+      if (!token) {
+        throw new Error("No valid token provided");
+      }
+
+      // Ensure centreId is provided
+      if (!centreId) {
+        throw new Error("Centre ID is required");
+      }
+
       const response = await axios.get(
-        "http://localhost:5000/api/get-all-machines"
+        `http://10.127.21.103:5000/api/machines/centre/${centreId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token in the request headers
+          },
+        }
       );
+
       if (response.data.success) {
-        return response.data.data;
-      }else{
-        return rejectWithValue("Failed to fetch");
-      };
+        return response.data.data; // Return machine data
+      } else {
+        return rejectWithValue("Failed to fetch machines");
+      }
     } catch (error) {
       return rejectWithValue(
-      error.response?.data?.message || "Failed to fetch machines"
-      )
+        error.response?.data?.message || "Failed to fetch machines"
+      );
     }
   }
 );
 
 export const createTicket = createAsyncThunk(
   "ticket/createTicket",
-  async (ticketData, { rejectWithValue }) => {
+  async (ticketData, { getState, rejectWithValue }) => {
     try {
-      const response = await axios.post("/api/tickets", ticketData);
+      const { auth } = getState(); // Get token from Redux state
+      const token = auth?.user?.token; // Access the token from the user data
+
+      if (!token) {
+        throw new Error("No valid token provided");
+      }
+
+      // Make the POST request with the Authorization header
+      const response = await axios.post(
+        "http://10.127.21.103:5000/api/create-tickets",
+        ticketData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass the token in the header
+          },
+        }
+      );
+
       successToast("Ticket created successfully");
       return response.data.data;
     } catch (error) {
+      // If it's a validation error, return the validation messages
+      if (error.response?.data?.errors) {
+        return rejectWithValue(error.response.data.errors); // Return validation errors
+      }
       errorToast("Failed to create ticket");
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || "Failed to create ticket");
     }
   }
 );
@@ -244,11 +284,14 @@ const ticketSlice = createSlice({
       })
       .addCase(createTicket.fulfilled, (state) => {
         state.loading = false;
+        state.error = null;
       })
       .addCase(createTicket.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-      });
+        state.error = Array.isArray(action.payload)
+          ? action.payload.map(err => err.msg).join(', ') // Handling validation errors
+          : action.payload || "Failed to create ticket";
+      })
   },
 });
 
