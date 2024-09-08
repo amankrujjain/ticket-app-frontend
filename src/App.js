@@ -12,6 +12,7 @@ import TicketTable from './components/TicektTable';
 import TicketDetails from './components/TicketDetails';
 import TicketTableClosed from './components/TicketTableClosed';
 import Navbar from './components/Navbar'; // Assuming you have the conditional Navbar
+import Profile from './components/Profile';
 
 // Layout for pages that include the Navbar
 function AppLayout() {
@@ -24,7 +25,8 @@ function AppLayout() {
           <Route path="/ticket/raise" element={<Ticket />} />
           <Route path="/ticket/open" element={<TicketTable />} />
           <Route path="/ticket/closed" element={<TicketTableClosed/>}/>
-          <Route path="/ticket/view-ticket-details" element={<TicketDetails />} />
+          <Route path="/ticket/view-ticket-details/:ticketId" element={<TicketDetails />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Dashboard />} /> {/* Default route if no other matches */}
         </Routes>
       </div>

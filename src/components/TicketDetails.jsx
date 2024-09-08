@@ -1,90 +1,101 @@
-import React from 'react';
-import { useParams } from 'react-router-dom'; // Assuming you're using react-router for navigation
-// { tickets } the prop
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTicketDetails } from '../store/ticketSlice'; // Make sure to import the action
 
-const TicketDetails = () => {
-//   const { ticketId } = useParams(); // Get ticketId from the URL
-// //   const ticket = tickets.find((t) => t.id === ticketId); // Find the ticket by ID
+export default function TicketDetails() {
+  const { ticketId } = useParams(); // Get the ticketId from the URL
+  const dispatch = useDispatch();
 
-//   if (!ticket) {
-//     return <p>Ticket not found.</p>;
-//   }
+  const {
+    ticketDetails: ticket, // Alias the state to `ticket`
+    loadingTicketDetails: loading,
+    errorTicketDetails: error
+  } = useSelector((state) => state.ticket); // Get ticket details, loading, and error from Redux
+
+  useEffect(() => {
+    if (ticketId) {
+      dispatch(fetchTicketDetails(ticketId)); // Dispatch the Redux action to fetch the ticket details
+    }
+  }, [dispatch, ticketId]);
+
+  // Add a console log to inspect the ticket data
+  // useEffect(() => {
+  //   if (ticket) {
+  //     console.log("Fetched Ticket Details:", ticket);
+  //   }
+  // }, [ticket]);
+  console.log(ticket)
+
+  if (loading) {
+    return <p>Loading ticket details...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Ticket Details</h1>
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">Ticket Id</h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">Ticket information and details.</p>
-        </div>
-        <div className="border-t border-gray-200">
-          <dl>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Email</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">sample@gmail.com</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Status</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Open</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Created On</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">26/04/1999</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">TAT</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">30/04/1999</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Issue</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Machine related</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Reason</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Meter broken</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Machine</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">XC345TH</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Appointed Engineer</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Meter broken</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Stage</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">on-process</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Status</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Open</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Closed Date</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{"1/05/1999" || 'N/A'}</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">TAT Date</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{"1/05/1999" || 'N/A'}</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Assumed TAT Date</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{"1/05/1999" || 'N/A'}</dd>
-            </div>
-            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Visited Date</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{"1/05/1999" || 'N/A'}</dd>
-            </div>
-            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Closed By Engineer</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{"1/05/1999" || 'N/A'}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-    </div>
-  );
-};
+    // <div className="p-4 bg-white shadow-md rounded-md">
+    //   <h1 className="text-2xl font-semibold">Ticket Details</h1>
+    //   <p><strong>Ticket ID:</strong> {ticket?.ticket_id}</p>
+    //   <p><strong>Description:</strong> {ticket?.description}</p>
+    //   <p><strong>Status:</strong> {ticket?.status}</p>
+    //   <p><strong>Issue:</strong> {ticket?.issue?.name || 'No Issue Available'}</p>
+    //   <p><strong>Reason:</strong> {ticket?.reason?.name || 'No Reason Available'}</p>
+    //   <p><strong>Machine:</strong> {ticket?.machine?.name || 'No Machine Available'}</p>
+    //   <p><strong>Centre:</strong> {ticket?.centre?.name || 'No Centre Available'}</p>
+    //   <p><strong>Created On:</strong> {ticket && new Date(ticket.created_on).toLocaleString()}</p>
+    //   {/* Add more details as needed */}
+    // </div>
+<div className="container mx-auto p-4 max-w-4xl">
+  <h1 className="text-2xl font-semibold mb-4">Ticket Details</h1>
+  <div className="shadow-md rounded-lg overflow-hidden border border-gray-200">
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-50">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Field</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200">
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Ticket ID</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.ticket_id || 'No Ticket ID'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Description</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.description || 'No Description Available'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Status</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.status || 'No Status Available'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Issue</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.issue?.name || 'No Issue Available'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Reason</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.reason?.name || 'No Reason Available'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Machine</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.machine?.machine_serial_number || 'No Machine Available'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Centre</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket?.centre?.name || 'No Centre Available'}</td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap font-bold">Created On</td>
+          <td className="px-6 py-4 whitespace-nowrap">{ticket ? new Date(ticket.created_on).toLocaleString() : 'No Date Available'}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-export default TicketDetails;
+
+  );
+}

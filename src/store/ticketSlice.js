@@ -1,18 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { successToast, errorToast } from "../config/toastConfig";
-const API_URL ='http://localhost:5000';
+
+// Dynamically set API URL based on environment
+// const OFFICE_API_URL = 'http://10.127.21.103:5000';
+// const LOCAL_API_URL = 'http://localhost:5000';
+const API_URL ='http://localhost:5000'
 
 // Fetch Issues
 export const fetchIssues = createAsyncThunk(
   "ticket/fetchIssues",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/api/get-all-issues`
-      );
+      const response = await axios.get(`${API_URL}/api/get-all-issues`);
       if (response.data.success) {
-        // successToast("Issues fetched successfully");
         return response.data.data;
       } else {
         errorToast("Failed to fetch issues");
@@ -30,11 +31,8 @@ export const fetchReasons = createAsyncThunk(
   "ticket/fetchReasons",
   async (issueId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/api/get-reasons-by-issue/${issueId}`
-      );
+      const response = await axios.get(`${API_URL}/api/get-reasons-by-issue/${issueId}`);
       if (response.data.success) {
-        // successToast("Reasons fetched successfully");
         return response.data.data;
       } else {
         errorToast("Failed to fetch reasons for the issue");
@@ -65,17 +63,13 @@ export const fetchMachines = createAsyncThunk(
         throw new Error("Centre ID is required");
       }
 
-      const response = await axios.get(
-        `${API_URL}/api/machines/centre/${centreId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_URL}/api/machines/centre/${centreId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.data.success) {
-        // successToast("Machines fetched successfully");
         return response.data.data;
       } else {
         errorToast("Failed to fetch machines");
@@ -101,15 +95,11 @@ export const createTicket = createAsyncThunk(
         throw new Error("No valid token provided");
       }
 
-      const response = await axios.post(
-        `${API_URL}/api/create-tickets`,
-        ticketData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${API_URL}/api/create-tickets`, ticketData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       successToast("Ticket created successfully");
       return response.data.data;
     } catch (error) {
@@ -136,18 +126,13 @@ export const fetchOpenTickets = createAsyncThunk(
         throw new Error("No valid token provided");
       }
 
-      const response = await axios.post(
-        `${API_URL}/api/my-open-tickets`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${API_URL}/api/my-open-tickets`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.data.success) {
-        // successToast("Open tickets fetched successfully");
         return response.data.data;
       } else {
         errorToast("Failed to fetch open tickets");
@@ -173,18 +158,13 @@ export const fetchClosedTickets = createAsyncThunk(
         throw new Error("No valid token provided");
       }
 
-      const response = await axios.post(
-        `${API_URL}/api/my-closed-tickets`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${API_URL}/api/my-closed-tickets`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.data.success) {
-        // successToast("Closed tickets fetched successfully");
         return response.data.data;
       } else {
         errorToast("Failed to fetch closed tickets");
@@ -197,6 +177,38 @@ export const fetchClosedTickets = createAsyncThunk(
   }
 );
 
+export const fetchTicketDetails = createAsyncThunk(
+  "ticket/fetchTicketDetails",
+  async (ticketId, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth?.user?.token;
+
+      if (!token) {
+        errorToast("Please login again");
+        throw new Error("No valid token provided");
+      }
+
+      const response = await axios.get(`${API_URL}/api/get-ticket/${ticketId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        errorToast("Failed to fetch ticket details");
+        return rejectWithValue("Failed to fetch ticket details");
+      }
+    } catch (error) {
+      errorToast(error.response?.data?.message || "Failed to fetch ticket details");
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch ticket details");
+    }
+  }
+);
+
+// Ticket Slice
 const ticketSlice = createSlice({
   name: "ticket",
   initialState: {
@@ -205,15 +217,28 @@ const ticketSlice = createSlice({
     machines: [],
     openTickets: [],
     closedTickets: [],
+    ticketDetails: null,  // Add state for single ticket details
+    loadingTicketDetails: false,  // Add loading state for ticket details
+    errorTicketDetails: null,  // Add error state for ticket details
     loadingOpenTickets: false,
     loadingClosedTickets: false,
     errorOpenTickets: null,
     errorClosedTickets: null,
-    // You can add more specific loading/error states if needed
   },
   extraReducers: (builder) => {
     builder
-      // Fetch issues
+    .addCase(fetchTicketDetails.pending, (state) => {
+      state.loadingTicketDetails = true;
+      state.errorTicketDetails = null;
+    })
+    .addCase(fetchTicketDetails.fulfilled, (state, action) => {
+      state.loadingTicketDetails = false;
+      state.ticketDetails = action.payload;
+    })
+    .addCase(fetchTicketDetails.rejected, (state, action) => {
+      state.loadingTicketDetails = false;
+      state.errorTicketDetails = action.payload;
+    })
       .addCase(fetchIssues.pending, (state) => {
         state.loading = true;
       })
@@ -225,7 +250,6 @@ const ticketSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch issues";
       })
-      // Fetch reasons
       .addCase(fetchReasons.pending, (state) => {
         state.loading = true;
       })
@@ -237,7 +261,6 @@ const ticketSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch reasons";
       })
-      // Fetch machines
       .addCase(fetchMachines.pending, (state) => {
         state.loading = true;
       })
@@ -249,7 +272,6 @@ const ticketSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Failed to fetch machines";
       })
-      // Create ticket
       .addCase(createTicket.pending, (state) => {
         state.loading = true;
       })
@@ -260,10 +282,9 @@ const ticketSlice = createSlice({
       .addCase(createTicket.rejected, (state, action) => {
         state.loading = false;
         state.error = Array.isArray(action.payload)
-          ? action.payload.map(err => err.msg).join(", ") // Handling validation errors
+          ? action.payload.map((err) => err.msg).join(", ")
           : action.payload || "Failed to create ticket";
       })
-      // Fetch open tickets
       .addCase(fetchOpenTickets.pending, (state) => {
         state.loadingOpenTickets = true;
         state.errorOpenTickets = null;
@@ -276,7 +297,6 @@ const ticketSlice = createSlice({
         state.loadingOpenTickets = false;
         state.errorOpenTickets = action.payload;
       })
-      // Fetch closed tickets
       .addCase(fetchClosedTickets.pending, (state) => {
         state.loadingClosedTickets = true;
         state.errorClosedTickets = null;

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOpenTickets } from "../store/ticketSlice";
+import { Link } from "react-router-dom"; // Import Link for navigation
 
 export default function TicketTable() {
   const dispatch = useDispatch();
@@ -10,10 +11,9 @@ export default function TicketTable() {
 
   // Fetch open tickets when the component mounts
   useEffect(() => {
-    if (openTickets.length === 0 && !loadingOpenTickets) {
+    
       dispatch(fetchOpenTickets());
-    }
-  }, [dispatch, openTickets.length, loadingOpenTickets]);
+  }, [dispatch]);
 
   if (loadingOpenTickets) {
     return <p>Loading tickets...</p>;
@@ -39,6 +39,9 @@ export default function TicketTable() {
               <div className="min-w-0 flex-auto">
                 <p className="text-sm font-semibold leading-6 text-gray-900">
                   {index + 1}.
+                </p>
+                <p className="text-sm font-semibold leading-6 text-gray-900">
+                  Ticket ID - {ticket.ticket_id}
                 </p>
                 <p className="text-sm font-semibold leading-6 text-gray-900">
                   Name: {ticket.user?.name || "Unnamed User"}
@@ -71,13 +74,15 @@ export default function TicketTable() {
                     minute: "2-digit",
                     second: "2-digit",
                   })}{" "}
-                  || "No Date"{"}"}
                 </p>
               </div>
               <div className="mt-4 flex justify-between">
-                <button className="bg-green-500 hover:bg-green-700 text-white text-sm font-semibold py-1 px-3 rounded">
+                <Link
+                  to={`/ticket/view-ticket-details/${ticket._id}`}
+                  className="bg-green-500 hover:bg-green-700 text-white text-sm font-semibold py-1 px-3 rounded"
+                >
                   View Full Ticket
-                </button>
+                </Link>
               </div>
             </li>
           </div>

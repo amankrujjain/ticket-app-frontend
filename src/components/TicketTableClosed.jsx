@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchClosedTickets } from "../store/ticketSlice";
+import { Link } from "react-router-dom";
 
 export default function TicketTableClosed() {
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ export default function TicketTableClosed() {
                   Name : {ticket.user?.name || "Unnamed User"}
                 </p>
                 <p className="mt-1 text-xs leading-5 text-gray-500">
-                  EmailID : {ticket.user?.email || "No Email Provided"}
+                  Email-ID : {ticket.user?.email || "No Email Provided"}
                 </p>
                 <p className="mt-1 text-xs leading-5 text-gray-500">
                   Centre : {ticket.centre?.name || "No Centre Provided"}
@@ -64,9 +65,12 @@ export default function TicketTableClosed() {
                 </p>
               </div>
               <div className="mt-4 flex justify-between">
-                <button className="bg-green-500 hover:bg-green-700 text-white text-sm font-semibold py-1 px-3 rounded">
+              <Link
+                  to={`/ticket/view-ticket-details/${ticket._id}`}
+                  className="bg-green-500 hover:bg-green-700 text-white text-sm font-semibold py-1 px-3 rounded"
+                >
                   View Full Ticket
-                </button>
+                </Link>
               </div>
             </li>
           </div>
