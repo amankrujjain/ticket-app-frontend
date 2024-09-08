@@ -7,6 +7,7 @@ import {
   createTicket,
 } from "../store/ticketSlice";
 import Card from "./Card";
+import Lottie from "lottie-react";
 
 export default function Ticket() {
   const dispatch = useDispatch();
@@ -25,6 +26,8 @@ export default function Ticket() {
   const [selectedReason, setSelectedReason] = useState("");
   const [selectedMachine, setSelectedMachine] = useState("");
   const [description, setDescription] = useState("");
+  const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
+  const [animationData, setAnimationData] = useState(null); // State for loading Lottie animation
 
   // Fetch issues and machines when the component mounts
   useEffect(() => {
@@ -41,6 +44,14 @@ export default function Ticket() {
     }
   }, [dispatch, selectedIssue]);
 
+  // Fetch the Lottie animation data from the public folder
+  useEffect(() => {
+    fetch("/lottie/Animation - 1725528461055.json") // Path to your Lottie file in the public folder
+      .then((response) => response.json())
+      .then((data) => setAnimationData(data))
+      .catch((error) => console.error("Error loading Lottie animation:", error));
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -49,10 +60,22 @@ export default function Ticket() {
         issueId: selectedIssue,
         reasonId: selectedReason,
         machineId: selectedMachine,
-        centre:user.centre._id,
+        centre: user.centre._id, // Use the correct path for centre ID
         description,
       })
-    );
+    ).then((action) => {
+      if (action.meta.requestStatus === "fulfilled") {
+        // Show modal on success
+        setModalVisible(true);
+
+        // Hide the modal after 2 seconds
+        setTimeout(() => {
+          setModalVisible(false);
+        }, 3000);
+      } else if (action.meta.requestStatus === "rejected") {
+        console.error("Ticket creation failed, error:", action.payload);
+      }
+    });
 
     // Clear form after submission
     setSelectedIssue("");
@@ -180,6 +203,18 @@ export default function Ticket() {
           </button>
         </div>
       </form>
+
+      {/* Modal for success animation */}
+      {isModalVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            {animationData && (
+              <Lottie animationData={animationData} loop={false} className="w-32 h-32 mx-auto" />
+            )}
+            <p className="mt-4 text-lg font-bold">Ticket created successfully!</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

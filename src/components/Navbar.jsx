@@ -1,7 +1,9 @@
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../store/authSlice';  // Import logout action
 
 const navigation = [
   { name: 'Raise Ticket', href: '/ticket/raise', current: true },
@@ -14,6 +16,14 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());  // Dispatch logout action
+    navigate('/login');  // Redirect to login page after logout
+  };
+
   return (
     <Disclosure as="nav" className="bg-gray-800 w-full">
       {({ open }) => (
@@ -66,9 +76,9 @@ export default function Navbar() {
                   <BellIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
 
-                {/* Profile dropdown */}
+                {/* Profile dropdown with Logout button */}
                 <Menu as="div" className="relative ml-3">
-                  {/* <div>
+                  <div>
                     <Menu.Button className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                       <span className="sr-only">Open user menu</span>
                       <img
@@ -77,7 +87,7 @@ export default function Navbar() {
                         alt=""
                       />
                     </Menu.Button>
-                  </div> */}
+                  </div>
                   <Transition
                     as={Fragment}
                     enter="transition ease-out duration-100"
@@ -100,12 +110,12 @@ export default function Navbar() {
                       </Menu.Item>
                       <Menu.Item>
                         {({ active }) => (
-                          <Link
-                            to="/logout"
-                            className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                          <button
+                            onClick={handleLogout}
+                            className={classNames(active ? 'bg-gray-100' : '', 'block w-full text-left px-4 py-2 text-sm text-gray-700')}
                           >
                             Sign out
-                          </Link>
+                          </button>
                         )}
                       </Menu.Item>
                     </Menu.Items>

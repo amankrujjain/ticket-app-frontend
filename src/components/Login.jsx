@@ -35,7 +35,7 @@ export default function Login() {
       if (roleName === 'admin' || roleName === 'sub-admin') {
         navigate('/dashboard');
       } else if (roleName === 'technician') {
-        navigate('/ticket');
+        navigate('/ticket/raise');
       }
     }
   }, [user, navigate]);

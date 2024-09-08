@@ -10,22 +10,41 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TicketTable from './components/TicektTable';
 import TicketDetails from './components/TicketDetails';
+import TicketTableClosed from './components/TicketTableClosed';
+import Navbar from './components/Navbar'; // Assuming you have the conditional Navbar
+
+// Layout for pages that include the Navbar
+function AppLayout() {
+  return (
+    <>
+      <Navbar /> {/* Navbar is conditionally rendered based on user role */}
+      <div className="min-h-screen bg-gray-200 w-full">
+        <Routes>
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+          <Route path="/ticket/raise" element={<Ticket />} />
+          <Route path="/ticket/open" element={<TicketTable />} />
+          <Route path="/ticket/closed" element={<TicketTableClosed/>}/>
+          <Route path="/ticket/view-ticket-details" element={<TicketDetails />} />
+          <Route path="*" element={<Dashboard />} /> {/* Default route if no other matches */}
+        </Routes>
+      </div>
+    </>
+  );
+}
 
 function App() {
   return (
     <Provider store={store}>
       <Router>
-        <div className="min-h-screen bg-gray-100 w-full">
-          <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/ticket" element={<Ticket />} />
-            <Route path="/ticket/open" element={<TicketTable/>} />
-            <Route path="/ticket/view-ticket-details" element={<TicketDetails/>} />
-            <Route path="*" element={<Login />} />
-          </Routes>
-        </div>
+        <Routes>
+          {/* Grouping login and register routes without Navbar */}
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
+          {/* All other routes that include the Navbar */}
+          <Route path="*" element={<AppLayout />} /> 
+        </Routes>
         <ToastContainer
           position="top-right"
           autoClose={2000}

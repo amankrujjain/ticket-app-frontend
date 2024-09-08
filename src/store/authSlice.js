@@ -1,15 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { successToast, errorToast } from '../config/toastConfig';
+const API_URL ='http://localhost:5000';
+
 
 // Thunk for login
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://10.127.21.103:5000/api/login', credentials, { withCredentials: true });
+      const response = await axios.post(`${API_URL}/api/login`, credentials, { withCredentials: true });
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', response.data.user.token);
+      console.log(response.data.user.token)
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
@@ -27,7 +30,7 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://10.127.21.103:5000/api/register', userData, { withCredentials: true });
+      const response = await axios.post(`${API_URL}/api/register`, userData, { withCredentials: true });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
