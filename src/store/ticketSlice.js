@@ -208,6 +208,63 @@ export const fetchTicketDetails = createAsyncThunk(
   }
 );
 
+export const fetchAllTickets = createAsyncThunk('tickets/fetchAllTickets', async(_,{getState,rejectWithValue})=>{
+  try {
+    const {auth} = getState();
+    const token = auth?.user?.token;
+
+    if(!token){
+      errorToast('Please login again');
+      throw new Error("No valid token provided");
+
+    }
+    const response = await axios.get(`${API_URL}/api/tickets`,{
+      headers:{
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if(response.data.success){
+      return response.data.data;
+    }else{
+      errorToast("Problem occured while fetching tickets");
+      return rejectWithValue('Failed to fetch tickets');
+    }
+  } catch (error) {
+    errorToast(error.response?.data?.message || 'Failed to fetch tickets');
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch tickets');
+  }
+});
+
+// Close Ticket
+export const closeTicket = createAsyncThunk(
+  "ticket/closeTicket",
+  async (ticketId, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth?.user?.token;
+
+      if (!token) {
+        errorToast("No valid token provided");
+        throw new Error("No valid token provided");
+      }
+
+      const response = await axios.patch(`${API_URL}/api/tickets/${ticketId}/close`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      successToast("Ticket closed successfully");
+      return response.data.data;  // Returning the closed ticket data
+    } catch (error) {
+      errorToast(error.response?.data?.message || "Failed to close ticket");
+      return rejectWithValue(error.response?.data?.message || "Failed to close ticket");
+    }
+  }
+);
+
+
 // Ticket Slice
 const ticketSlice = createSlice({
   name: "ticket",
@@ -215,6 +272,7 @@ const ticketSlice = createSlice({
     issues: [],
     reasons: [],
     machines: [],
+    allTickets:[],
     openTickets: [],
     closedTickets: [],
     ticketDetails: null,  // Add state for single ticket details
@@ -222,6 +280,8 @@ const ticketSlice = createSlice({
     errorTicketDetails: null,  // Add error state for ticket details
     loadingOpenTickets: false,
     loadingClosedTickets: false,
+    loadingAllTickets: false,
+    errorAllTickets: null,
     errorOpenTickets: null,
     errorClosedTickets: null,
   },
@@ -308,7 +368,35 @@ const ticketSlice = createSlice({
       .addCase(fetchClosedTickets.rejected, (state, action) => {
         state.loadingClosedTickets = false;
         state.errorClosedTickets = action.payload;
+      })
+      .addCase(fetchAllTickets.pending, (state)=>{
+        state.loadingAllTickets = true;
+        state.errorAllTickets = null
+      })
+      .addCase(fetchAllTickets.fulfilled, (state, action) => {
+        state.loadingAllTickets = false;
+        state.allTickets = action.payload;  // Save tickets in state
+      })
+      .addCase(fetchAllTickets.rejected, (state, action) => {
+        state.loadingAllTickets = false;
+        state.errorAllTickets = action.payload;  // Store error
+      })
+      .addCase(closeTicket.pending, (state) => {
+        state.loadingTicketDetails = true;
+        state.errorTicketDetails = null;
+      })
+      .addCase(closeTicket.fulfilled, (state, action) => {
+        state.loadingTicketDetails = false;
+        state.ticketDetails = action.payload;  // Update the ticket details with the closed status
+        successToast("Ticket closed successfully");
+      })
+      .addCase(closeTicket.rejected, (state, action) => {
+        state.loadingTicketDetails = false;
+        state.errorTicketDetails = action.payload;  // Set the error
+        errorToast("Failed to close ticket");
       });
+      
+      ;
   },
 });
 

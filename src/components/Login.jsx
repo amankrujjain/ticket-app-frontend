@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../store/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { errorToast } from '../config/toastConfig';
 
 
@@ -33,7 +33,7 @@ export default function Login() {
       const roleName = user.role.name; // Access the role name properly
 
       if (roleName === 'admin' || roleName === 'sub-admin') {
-        navigate('/dashboard');
+        navigate('/admin/dashboard');
       } else if (roleName === 'technician') {
         navigate('/ticket/raise');
       }
@@ -79,9 +79,9 @@ export default function Login() {
                   Password
                 </label>
                 <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                  <Link to="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="mt-2">
