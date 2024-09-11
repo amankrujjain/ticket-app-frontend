@@ -13,7 +13,7 @@ export default function ManageTickets() {
 
   // Local state for filtering and sorting
   const [filter, setFilter] = useState("all"); // "all", "open", or "closed"
-  const [sortOrder, setSortOrder] = useState("ascending"); // "ascending" or "descending"
+  const [sortOrder, setSortOrder] = useState("descending"); // "ascending" or "descending"
 
   // Fetch tickets when the component mounts
   useEffect(() => {

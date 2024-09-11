@@ -1,15 +1,34 @@
 import { Disclosure, Menu, Transition } from '@headlessui/react';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Fragment } from 'react';
+import { Bars3Icon, BellIcon, XMarkIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { Fragment, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../../store/authSlice';  // Import logout action
 
 const adminNavigation = [
   { name: 'Dashboard', href: '/admin/dashboard' },
-  { name: 'Manage Tickets', href: '/admin/manage-tickets' },
-  { name: 'Manage Machines', href: '/admin/manage-machines' },
-  { name: 'Manage Users', href: '/admin/manage-users' },
+  {
+    name: 'Manage Tickets',
+    href: '/admin/manage-tickets',
+  },
+  {
+    name: 'Manage Machines',
+    href: '#', // Use '#' to avoid navigation conflict
+    subMenu: [
+      { name: 'Create Machine', href: '/admin/create-machine' },
+      { name: 'View All Machines', href: '/admin/view-machines' },
+      { name: 'Delete Machine', href: '/admin/delete-machine' },
+    ],
+  },
+  {
+    name: 'Manage Users',
+    href: '#', // Use '#' to avoid navigation conflict
+    subMenu: [
+      { name: 'Create User', href: '/admin/create-user' },
+      { name: 'View Users', href: '/admin/view-users' },
+      { name: 'Delete User', href: '/admin/delete-user' },
+    ],
+  },
 ];
 
 function classNames(...classes) {
@@ -20,17 +39,31 @@ export default function AdminNavbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation(); // Get the current path
+  const [openDropdown, setOpenDropdown] = useState(null); // State to handle desktop dropdown
+  const [mobileOpenDropdown, setMobileOpenDropdown] = useState(null); // State to handle mobile dropdown
 
   const handleLogout = () => {
     dispatch(logout());  // Dispatch logout action
     navigate('/login');  // Redirect to login page after logout
   };
 
+  const handleMouseEnter = (name) => setOpenDropdown(name);
+  const handleMouseLeave = () => setOpenDropdown(null);
+
+  const handleMobileDropdownToggle = (name, event) => {
+    event.preventDefault(); // Prevent default link behavior
+    if (mobileOpenDropdown === name) {
+      setMobileOpenDropdown(null);  // Close the dropdown if already open
+    } else {
+      setMobileOpenDropdown(name);  // Open the dropdown if it's closed
+    }
+  };
+
   return (
     <Disclosure as="nav" className="bg-gray-800 w-full">
       {({ open }) => (
         <>
-          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex-grow">
             <div className="relative flex h-16 items-center justify-between">
               <div className="absolute inset-y-0 left-0 flex items-center md:hidden">
                 {/* Mobile menu button */}
@@ -55,13 +88,47 @@ export default function AdminNavbar() {
                   <div className="flex space-x-4 justify-center">
                     {adminNavigation.map((item) => {
                       const isActive = location.pathname === item.href; // Check if the current path matches the link's href
-                      return (
+                      return item.subMenu ? (
+                        <div
+                          key={item.name}
+                          onMouseEnter={() => handleMouseEnter(item.name)}
+                          onMouseLeave={handleMouseLeave}
+                          className="relative flex items-center" // Ensure consistent alignment with flexbox
+                        >
+                          <Link
+                            to={item.href}
+                            className={classNames(
+                              isActive ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                              'rounded-md px-3 py-2 text-sm font-medium flex items-center' // Flex to align text and icon
+                            )}
+                            aria-current={isActive ? 'page' : undefined}
+                          >
+                            {item.name}
+                          </Link>
+                          {/* Dropdown Menu */}
+                          {openDropdown === item.name && (
+                            <div className="absolute top-full mt-1 w-48 origin-top-right rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                              <div className="py-1">
+                                {item.subMenu.map((subItem) => (
+                                  <Link
+                                    key={subItem.name}
+                                    to={subItem.href}
+                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    {subItem.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
                         <Link
                           key={item.name}
                           to={item.href}
                           className={classNames(
                             isActive ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                            'rounded-md px-3 py-2 text-sm font-medium'
+                            'rounded-md px-3 py-2 text-sm font-medium flex items-center' // Flex to align links properly
                           )}
                           aria-current={isActive ? 'page' : undefined}
                         >
@@ -130,23 +197,49 @@ export default function AdminNavbar() {
             </div>
           </div>
 
-          <Disclosure.Panel className="md:hidden">
+          <Disclosure.Panel className="md:hidden flex-grow">
             <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
               {adminNavigation.map((item) => {
                 const isActive = location.pathname === item.href; // Check if the current path matches the link's href
                 return (
-                  <Disclosure.Button
-                    key={item.name}
-                    as={Link}
-                    to={item.href}
-                    className={classNames(
-                      isActive ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                      'block rounded-md px-3 py-2 text-base font-medium'
+                  <div key={item.name}>
+                    {/* Use Link for navigation and button for submenu toggle */}
+                    <Link
+                      to={item.href}
+                      className={classNames(
+                        isActive ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                        'block rounded-md px-3 py-2 text-base font-medium w-full text-left flex justify-between items-center'
+                      )}
+                    >
+                      <span>{item.name}</span>
+                      {item.subMenu && (
+                        <button
+                          onClick={(event) => handleMobileDropdownToggle(item.name, event)} // Prevent default for toggling
+                          className="text-gray-400 hover:text-gray-300 focus:outline-none"
+                        >
+                          {mobileOpenDropdown === item.name ? (
+                            <ChevronDownIcon className="h-5 w-5" />
+                          ) : (
+                            <ChevronRightIcon className="h-5 w-5" />
+                          )}
+                        </button>
+                      )}
+                    </Link>
+                    {/* Submenu for mobile */}
+                    {item.subMenu && mobileOpenDropdown === item.name && (
+                      <div className="ml-4 mt-2">
+                        {item.subMenu.map((subItem) => (
+                          <Link
+                            key={subItem.name}
+                            to={subItem.href}
+                            className="block text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-base font-medium"
+                          >
+                            {subItem.name}
+                          </Link>
+                        ))}
+                      </div>
                     )}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    {item.name}
-                  </Disclosure.Button>
+                  </div>
                 );
               })}
             </div>
