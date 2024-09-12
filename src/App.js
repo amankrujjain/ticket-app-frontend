@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider, useSelector } from 'react-redux';
 import store from './store/store';
-import Register from './components/Register';
+import Register from './components/admin/Register'
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Ticket from './components/Ticket';
@@ -17,6 +17,8 @@ import Profile from './components/Profile';
 import ManageTickets from './components/admin/ManageTickets';
 import AdminViewTicket from './components/admin/AdminViewTicket';  // Import the new AdminViewTicket component
 import NotFoundPage from './components/utils/NotFoundPage';
+import ViewUser from './components/admin/ViewUser';
+
 
 // Layout for pages that include the Navbar
 function AppLayout() {
@@ -37,7 +39,9 @@ function AppLayout() {
           <Route path="/ticket/view-ticket-details/:ticketId" element={<TicketDetails />} />  {/* Technician Ticket View */}
           <Route path="/admin/view-ticket/:ticketId" element={<AdminViewTicket />} />  {/* Admin Ticket View */}
           <Route path="/admin/manage-tickets" element={<ManageTickets />} />
+          <Route path='/admin/view-users' element={<ViewUser/>}/>
           <Route path="/profile" element={<Profile />} />
+          <Route path='/admin/register' element={<Register/>}/>
           <Route path='/admin/dashboard' element={<Dashboard/>} />
           <Route path="*" element={<NotFoundPage />} />  {/* Default route if no other matches */}
         </Routes>
@@ -53,7 +57,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="*" element={<AppLayout />} />  {/* This should be at the bottom */}
         </Routes>
         <ToastContainer
