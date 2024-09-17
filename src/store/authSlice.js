@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { successToast, errorToast } from '../config/toastConfig';
-const API_URL ='http://localhost:5000';
+const API_URL =process.env.REACT_APP_LOCAL_API_URL;
 
 
 // Thunk for login

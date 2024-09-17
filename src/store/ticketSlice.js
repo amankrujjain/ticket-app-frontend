@@ -5,7 +5,7 @@ import { successToast, errorToast } from "../config/toastConfig";
 // Dynamically set API URL based on environment
 // const OFFICE_API_URL = 'http://10.127.21.103:5000';
 // const LOCAL_API_URL = 'http://localhost:5000';
-const API_URL ='http://localhost:5000'
+const API_URL =process.env.REACT_APP_LOCAL_API_URL
 
 // Fetch Issues
 export const fetchIssues = createAsyncThunk(

@@ -6,10 +6,11 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/profile', {
+        const response = await axios.get(`${process.env.REACT_APP_LOCAL_API_URL}/api/profile`, {
           withCredentials: true, // If you're using cookies for authentication
         });
         console.log(response);
