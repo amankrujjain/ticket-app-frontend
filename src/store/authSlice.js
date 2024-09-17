@@ -16,6 +16,7 @@ export const loginUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       if (error.response && error.response.data) {
+        console.log(error.response.data)
         errorToast(error.response.data.message || 'Login failed'); // Error toast notification
         return rejectWithValue(error.response.data);
       }
